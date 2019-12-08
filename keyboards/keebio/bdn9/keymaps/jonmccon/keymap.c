@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// make keebio/bdn9:default CTPC=yes
+// make keebio/bdn9:jonmccon CTPC=yes
 
 #include QMK_KEYBOARD_H
 

@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// make preonic/rev3:jonmccon
 #include QMK_KEYBOARD_H
 #include "muse.h"
 
