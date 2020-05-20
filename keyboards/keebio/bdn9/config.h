@@ -66,5 +66,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* Locking resynchronize hack */
 #define LOCKING_RESYNC_ENABLE
 
-#define MIDI_BASIC
+#define MUSIC_MASK (keycode != KC_NO)
 #define MIDI_ADVANCED
