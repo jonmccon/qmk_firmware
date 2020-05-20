@@ -65,7 +65,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      */
         
     [_AUDITION_Edit] = LAYOUT(
-        KC_MUTE, KC_SPACE,  KC_MPLY,
+        KC_MUTE, MI_C_1,   MI_C_2,
         KC_V,    KC_QUOTE,  KC__VOLUP,
         KC_R,    KC_SCOLON, KC__VOLDOWN
     ),
@@ -191,7 +191,6 @@ void encoder_update_user(uint8_t index, bool clockwise) {
         layer_on(selected_layer);
     }
 }}
-
 
 
 
