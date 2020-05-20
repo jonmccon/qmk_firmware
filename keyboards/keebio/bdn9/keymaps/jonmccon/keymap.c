@@ -14,7 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Here's the build command
 // make keebio/bdn9:jonmccon CTPC=yes
+
+
+// looks like you're going to get knob layers without the fancies
+// work on your general layers
+
 
 #include QMK_KEYBOARD_H
 
@@ -22,33 +28,60 @@
 
 // Layers
 enum bdn9_layers {
-  _QWERTY,
-  _LOWER,
-  _RAISE,
-  _ADJUST
+  _AUDITION_Edit,
+  _AUDITION_Mark,
+  _GENERAL
 };
 
 // Variables
 enum bdn9_keycodes {
-  QWERTY,
-  LOWER,
-  RAISE
+  AUDITION_Edit,
+  AUDITION_Mark,
+  GENERAL,
+  COPA,
+  COPY,
+  PASTE,
+  UNDO,
+  REDO
 };
+
+// Layer change noises  
+// #ifdef AUDIO_ENABLE
+
+//     float layerSound[][2] = SONG(COIN_SOUND);
+//     float layerSoundB[][2] = SONG(ONE_UP_SOUND);
+
+// #endif
 
 // keymaps
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     
-    // QWERTY
+    // AUDITION - Editing 
     /*
-        | Knob 1: Vol Dn/Up |      | Knob 2: Page Dn/Up |
-        | Press: Mute       | Home | Press: Play/Pause  |
-        | Hold: Layer 2     | Up   | RGB Mode           |
-        | Left              | Down | Right              |
+        | Layer         |           | 8 , 9 (Audition zoom) |
+        | Press: Mute   | SPACE     | Press: Play/Pause  |
+        | V             | '         | Volume Up          |
+        | R             | ;         | Volume Down        |
      */
-    [_QWERTY] = LAYOUT(
-        KC_MUTE, KC_HOME, KC_MPLY,
-        LOWER,   KC_UP,   RAISE,
-        KC_LEFT, KC_DOWN, KC_RGHT
+        
+    [_AUDITION_Edit] = LAYOUT(
+        KC_MUTE, KC_SPACE,  KC_MPLY,
+        KC_V,    KC_QUOTE,  KC__VOLUP,
+        KC_R,    KC_SCOLON, KC__VOLDOWN
+    ),
+
+    // AUDITION - Cues and Marking
+    /*
+        | Layer         |           | 8 , 9 (Audition zoom) |
+        | Press: Mute   | SPACE     | Press: Play/Pause  |
+        | V             | '         | Volume Up          |
+        | R             | ;         | Volume Down        |
+     */
+        
+    [_AUDITION_Mark] = LAYOUT(
+        KC_MUTE, KC_SPACE,  KC_MPLY,
+        KC_T,    KC_QUOTE,  KC__VOLUP,
+        KC_C,    KC_SCOLON, KC__VOLDOWN
     ),
     
     // LOWER to be swapped
@@ -57,85 +90,61 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         | Held: Layer 2  | Home | RGB Mode   |
         | Media Previous | End  | Media Next |
      */
-    [_LOWER] = LAYOUT(
-        RESET  , BL_STEP, KC_STOP,
-        _______, KC_HOME, RGB_MOD,
-        KC_MPRV, KC_END , KC_MNXT
-    ),
-    
-    // RAISE to be swapped
-    /*
-        | RESET          | N/A  | Media Stop |
-        | Held: Layer 2  | Home | RGB Mode   |
-        | Media Previous | End  | Media Next |
-     */
-    [_RAISE] = LAYOUT(
-        RESET  , BL_STEP, KC_STOP,
-        _______, KC_HOME, RGB_MOD,
-        KC_MPRV, KC_END , KC_MNXT
-    ),
-
-    // ADJUST to be swapped
-    /*
-        | RESET          | N/A  | Media Stop |
-        | Held: Layer 2  | Home | RGB Mode   |
-        | Media Previous | End  | Media Next |
-     */
-    [_ADJUST] = LAYOUT(
-        RESET  , BL_STEP, KC_STOP,
-        _______, KC_HOME, RGB_MOD,
-        KC_MPRV, KC_END , KC_MNXT
+    [_GENERAL] = LAYOUT(
+        RESET,   MI_C_1,   MI_C_2,
+        PASTE,   REDO,     KC__VOLUP,
+        COPY,    UNDO,     KC__VOLDOWN        
     ),
 };
 
-// // Radial Encoder
-// void encoder_update_user(uint8_t index, bool clockwise) {
-//     if (index == 0) {
-//         if (clockwise) {
-//             tap_code(KC_VOLU);
-//         } else {
-//             tap_code(KC_VOLD);
-//         }
-//     }
-//     else if (index == 1) {
-//         if (clockwise) {
-//             tap_code(KC_PGUP);
-//         } else {
-//             tap_code(KC_PGDN);
-//         }
-//     }
-// }
 
-
-// Layer handling
+/* Copa
+ * Sends Ctrl+C on press and
+ * Sends Ctrl+V on release
+ */
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-        case QWERTY:
+    switch(keycode) {
+        case COPA:
+    	 if (record->event.pressed) {
+                SEND_STRING( SS_LCMD("c"));
+            } else {
+                SEND_STRING( SS_LCMD("v"));
+            }
+            return false;
+            break;
+        case COPY:
           if (record->event.pressed) {
-            set_single_persistent_default_layer(_QWERTY);
+            // when keycode ZMIN is pressed
+            SEND_STRING(SS_LCMD("c"));
+          } else {
+            // when keycode is released
           }
           return false;
           break;
-
-        // Layer Switching
-        case LOWER:
+        case PASTE:
           if (record->event.pressed) {
-            layer_on(_LOWER);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            // when keycode ZMIN is pressed
+            SEND_STRING(SS_LCMD("v"));
           } else {
-            layer_off(_LOWER);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            // when keycode is released
           }
           return false;
           break;
-
-        case RAISE:
+        case UNDO:
           if (record->event.pressed) {
-            layer_on(_RAISE);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            // when keycode ZMIN is pressed
+            SEND_STRING(SS_LCMD("z"));
           } else {
-            layer_off(_RAISE);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            // when keycode is released
+          }
+          return false;
+          break;
+        case REDO:
+          if (record->event.pressed) {
+            // when keycode ZADD is pressed
+            SEND_STRING(SS_LCMD(SS_LSFT("z")));
+          } else {
+            // when keycode is released
           }
           return false;
           break;
@@ -143,32 +152,78 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 };
 
+
+
+
+
+// Audition zoom knob
+// void encoder_update_user(uint8_t index, bool clockwise) {
+//     if (index == 1) {
+//         if (clockwise) {
+//             tap_code(KC_8);
+//         } else {
+//             tap_code(KC_9);
+//         }
+//     }
+// }
+
+
+// Layer handling via knob 0
+// Audition zoom via knob 1
+// Possibly pass a variable in here in to replace the 8 & 9 keys
+uint8_t selected_layer = 0;
+void encoder_update_user(uint8_t index, bool clockwise) {
+  
+    if (index == 1) {
+      if (clockwise) {
+            tap_code(KC_8);
+        } else {
+            tap_code(KC_9);
+        }
+    } else {
+      if (index == 0) {
+        if (!clockwise && selected_layer  < 2) {
+          selected_layer ++;
+        } else if (clockwise && selected_layer  > 0){
+          selected_layer --;
+        }
+        layer_clear();
+        layer_on(selected_layer);
+    }
+}}
+
+
+
+
+
+
+// turn on oled
 // void i2c_init(void);
 void keyboard_post_init_user(void) {
   wait_ms(2000);
-  oled_init(OLED_ROTATION_0);
+  oled_init(OLED_ROTATION_180);
 }
 // bool oled_on(void);
 
-
+// talk to oled
 #ifdef OLED_DRIVER_ENABLE
 void oled_task_user(void) {
     // Host Keyboard Layer Status
-    oled_write_P(PSTR("Layer: "), false);
+    oled_write_P(PSTR("L:\n"), false);
 
     switch (get_highest_layer(layer_state)) {
-        case _QWERTY:
-            oled_write_P(PSTR("Default Pancakes !\n"), false);
+        case _AUDITION_Edit:
+            oled_write_P(PSTR("Audition\nEditing\n"), false);
             break;
-        case _LOWER:
-            oled_write_P(PSTR("lower\n"), false);
+        case _AUDITION_Mark:
+            oled_write_P(PSTR("Audition\nCue Markers\n"), false);
             break;
-        case _RAISE:
-            oled_write_P(PSTR("RAISE\n"), false);
+        case _GENERAL:
+            oled_write_P(PSTR("GENERAL\n \n"), false);
             break;
         default:
             // Or use the write_ln shortcut over adding '\n' to the end of your string
-            oled_write_ln_P(PSTR("Undefined"), false);
+            oled_write_ln_P(PSTR("Undefined\n"), false);
     }
 }
 #endif
