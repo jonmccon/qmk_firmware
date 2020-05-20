@@ -91,7 +91,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         | Media Previous | End  | Media Next |
      */
     [_GENERAL] = LAYOUT(
-        RESET,   _______,  _______,
+        RESET,   MI_C_1,   MI_C_2,
         PASTE,   REDO,     KC__VOLUP,
         COPY,    UNDO,     KC__VOLDOWN        
     ),
